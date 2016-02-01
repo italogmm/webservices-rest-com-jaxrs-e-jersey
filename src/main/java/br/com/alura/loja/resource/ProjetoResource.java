@@ -14,6 +14,7 @@ public class ProjetoResource {
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	public String busca(){
+		
 		ProjetoDAO projetoDAO = new ProjetoDAO();
 		Projeto projeto = projetoDAO.busca(1l);
 		return projeto.toXML();
