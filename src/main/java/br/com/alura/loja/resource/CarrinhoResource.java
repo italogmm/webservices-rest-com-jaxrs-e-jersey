@@ -25,20 +25,36 @@ public class CarrinhoResource {
 	@Path("{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	public String busca(@PathParam("id") long id){
+	public Carrinho busca(@PathParam("id") long id){
 		CarrinhoDAO carrinhoDAO = new CarrinhoDAO();
 		Carrinho carrinho = carrinhoDAO.busca(id);
-		return carrinho.toXML();
+		return carrinho;
 	}
 	
+	/**
+	 * Utilizando XStream:
+	 */
+//	@POST
+//	@Consumes(MediaType.APPLICATION_XML)
+//	public Response adiciona(String conteudo){
+//		Carrinho carrinho = (Carrinho) new XStream().fromXML(conteudo);
+//		new CarrinhoDAO().adiciona(carrinho);
+//		URI uri = URI.create("/carrinhos/" + carrinho.getId());
+//		return Response.created(uri).build();
+//	}
+	
+	/**
+	 * Utilizando JAX-B
+	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_XML)
-	public Response adiciona(String conteudo){
-		Carrinho carrinho = (Carrinho) new XStream().fromXML(conteudo);
+	public Response adiciona(Carrinho carrinho){
 		new CarrinhoDAO().adiciona(carrinho);
 		URI uri = URI.create("/carrinhos/" + carrinho.getId());
 		return Response.created(uri).build();
 	}
+	
+	
 	
 	@Path("{id}/produtos/{produtoId}")
 	@DELETE
@@ -55,11 +71,25 @@ public class CarrinhoResource {
 		return Response.ok().build();
 	}
 	
+	/**
+	 * Utilizando XStream:
+	 */
+//	@Path("{id}/produtos/{produtoId}/quantidade")
+//	@PUT
+//	public Response alteraProduto(String conteudo, @PathParam("id") long id, @PathParam("produtoId") long produtoId){
+//		Carrinho carrinho = new CarrinhoDAO().busca(id);
+//		Produto produto = (Produto) new XStream().fromXML(conteudo);
+//		carrinho.trocaQuantidade(produto);
+//		return Response.ok().build();
+//	}
+	
+	/**
+	 * Utilizando JAX-B
+	 */
 	@Path("{id}/produtos/{produtoId}/quantidade")
 	@PUT
-	public Response alteraProduto(String conteudo, @PathParam("id") long id, @PathParam("produtoId") long produtoId){
+	public Response alteraProduto(Produto produto, @PathParam("id") long id, @PathParam("produtoId") long produtoId){
 		Carrinho carrinho = new CarrinhoDAO().busca(id);
-		Produto produto = (Produto) new XStream().fromXML(conteudo);
 		carrinho.trocaQuantidade(produto);
 		return Response.ok().build();
 	}

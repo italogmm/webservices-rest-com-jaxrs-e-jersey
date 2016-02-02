@@ -43,9 +43,18 @@ public class ClienteTest {
 
 	@Test
 	public void testaQueBuscarUmCarrinhoTrazOCarrinhoEsperado() {
+
+		/**
+		 * Utilizando XStream
+		 */
+//		String conteudo = target.path("carrinhos/1").request().get(String.class);
+//		Carrinho carrinho = (Carrinho) new XStream().fromXML(conteudo);
 		
-		String conteudo = target.path("carrinhos/1").request().get(String.class);
-		Carrinho carrinho = (Carrinho) new XStream().fromXML(conteudo);
+		/**
+		 * Utilizando JAX-B:
+		 */
+		Carrinho carrinho = target.path("carrinhos/1").request().get(Carrinho.class);
+		
 		Assert.assertEquals("Rua Vergueiro 3185, 8 andar", carrinho.getRua());
 	}
 	
@@ -56,37 +65,47 @@ public class ClienteTest {
         carrinho.adiciona(new Produto(314L, "Tablet", 999, 1));
         carrinho.setRua("Rua Vergueiro");
         carrinho.setCidade("Sao Paulo");
-        String xml = carrinho.toXML();
         
-        Entity<String> entity = Entity.entity(xml, MediaType.APPLICATION_XML);
-
+        /**utilizando xstream */
+//        String xml = carrinho.toXML();
+//        Entity<String> entity = Entity.entity(xml, MediaType.APPLICATION_XML);
+//        Response response = target.path("/carrinhos").request().post(entity);
+        
+        Entity<Carrinho> entity = Entity.entity(carrinho, MediaType.APPLICATION_XML);
         Response response = target.path("/carrinhos").request().post(entity);
+        
         Assert.assertEquals(201, response.getStatus());
         String location = response.getHeaderString("Location");
-        String conteudo = client.target(location).request().get(String.class);
-        Assert.assertTrue(conteudo.contains("Tablet"));
+        Carrinho carrinhoConsultado = client.target(location).request().get(Carrinho.class);
+        Assert.assertTrue(carrinhoConsultado.getRua().contains("Rua Vergueiro"));
 	}
 	
-	@Test(expected = InternalServerErrorException.class)
+	@Test()
 	public void testaDeleteCarrinho(){
 		
 		Carrinho carrinho = new Carrinho();
         carrinho.adiciona(new Produto(314L, "Produto 1", 999, 1));
         carrinho.setRua("Rua Vergueiro");
         carrinho.setCidade("Goiânia");
-        String xml = carrinho.toXML();
         
-        Entity<String> entity = Entity.entity(xml, MediaType.APPLICATION_XML);
-
+        /**utilizando xstream */
+//        String xml = carrinho.toXML();
+//        Entity<String> entity = Entity.entity(xml, MediaType.APPLICATION_XML);
+//        Response response = target.path("/carrinhos").request().post(entity);
+        
+        /** Utilizando JAX-B */
+        Entity<Carrinho> entity = Entity.entity(carrinho, MediaType.APPLICATION_XML);
         Response response = target.path("/carrinhos").request().post(entity);
+        
+        
         Assert.assertEquals(201, response.getStatus());
         String location = response.getHeaderString("Location");
-        String conteudo = client.target(location).request().get(String.class);
+        Carrinho carrinhoIncluido = client.target(location).request().get(Carrinho.class);
         
-        Carrinho carrinhoConsultado = (Carrinho) new XStream().fromXML(conteudo);
-        Response responseDelete = target.path("/carrinhos/" + carrinhoConsultado.getId()).request().delete();
+        Response responseDelete = target.path("/carrinhos/" + carrinhoIncluido.getId()).request().delete();
         Assert.assertEquals(200, responseDelete.getStatus());
         
-        String conteudoAposDelete = client.target(location).request().get(String.class);
+        Carrinho carrinhoAposDelete = (Carrinho) client.target(location).request().get(Carrinho.class);
+        Assert.assertNull(carrinhoAposDelete);
 	}
 }
